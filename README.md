@@ -1,6 +1,8 @@
 # CodeNamer-api
 https://code-namer.herokuapp.com/
 
+An api written in flask to work with https://github.com/ethansaxenian/CodeNamer
+
 ### Installation and setup instructions:
 
 Install tesseract using `homebrew`:
