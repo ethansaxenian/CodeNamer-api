@@ -1,4 +1,7 @@
 # CodeNamer-api
+https://code-namer.herokuapp.com/
+
+### Installation and setup instructions:
 
 Install tesseract using `homebrew`:
 ```
