@@ -15,6 +15,6 @@ def home_route():
 @app.route("/words/<word>/<num>")
 def get_clues(word, num=100):
     model = load_model()
-    clues = get_similar_words(model, word, num)
+    clues = get_similar_words(model, word, int(num))
     parsed_words = [(clue, score) for (clue, score) in clues if is_valid_clue(clue, word)]
     return {new_word.lower(): score for new_word, score in parsed_words}
