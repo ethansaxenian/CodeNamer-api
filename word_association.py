@@ -1,7 +1,6 @@
-from gensim.models import KeyedVectors, Word2Vec
-import gensim.downloader as api
+from gensim.models import KeyedVectors
 
-MODEL_NAME = "glove-wiki-gigaword-300"
+MODEL_NAME = "glove-wiki-gigaword-50"
 KEYED_VECTORS_PATH = f"~/gensim-data/{MODEL_NAME}/{MODEL_NAME}.gz"
 
 
@@ -23,11 +22,3 @@ def load_model() -> KeyedVectors:
 
 def is_valid_clue(clue: str, matcher: str) -> bool:
     return ("_" not in clue.lower()) and (matcher.lower() not in clue.lower()) and (clue.lower() not in matcher.lower())
-
-
-if __name__ == '__main__':
-    model = api.load("glove-wiki-gigaword-100")
-    save_model(model, "wiki-vectors-100")
-    # dataset = api.load("wiki-english-20171001")
-    # model = Word2Vec(dataset)
-    # model.wv.save("models/vectors.kv")
