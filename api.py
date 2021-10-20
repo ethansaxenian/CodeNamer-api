@@ -1,5 +1,9 @@
+from typing import Optional, Any
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+from codenames_board import CodenamesBoard
 from word_association import similar_words, read_codenames_board
 from words import WORDS
 
@@ -12,7 +16,7 @@ def parse_query_list(key: str) -> list[str]:
     return result.split(" ") if result else []
 
 
-def parse_query_param(key: str, default):
+def parse_query_param(key: str, default: Optional[Any] = None) -> Any:
     result = request.args.get(key)
     return result or default
 
@@ -27,9 +31,13 @@ def get_clues():
     positive = parse_query_list("positive")
     negative = parse_query_list("negative")
     neutral = parse_query_list("neutral")
-    assassin = parse_query_list("assassin")
+    assassin = parse_query_param("assassin")
     n = parse_query_param("n", 10)
-    return read_codenames_board(positive, negative, neutral, assassin, int(n))
+    try:
+        board = CodenamesBoard(positive, negative, neutral, assassin)
+    except ValueError:
+        return {"error": "need to specify at least one word in query string"}
+    return read_codenames_board(board, int(n))
 
 
 @app.route("/words/<word>")

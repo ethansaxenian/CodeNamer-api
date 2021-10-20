@@ -1,4 +1,11 @@
+from typing import Callable
+
 from gensim.models import KeyedVectors
+
+from codenames_board import CodenamesBoard
+
+WordScores = list[tuple[str, float]]
+WordScoresDict = dict[str, float]
 
 
 def load_model() -> KeyedVectors:
@@ -15,33 +22,37 @@ def is_valid_clue(clue: str, board: list[str]) -> bool:
     return True
 
 
-def similar_words(word: str, number: int = 5, wants_valid_clues: bool = True) -> dict[str, float]:
+def similar_words(word: str, number: int = 5, wants_valid_clues: bool = True) -> WordScoresDict:
     model = load_model()
 
     if not wants_valid_clues:
-        clues = model.most_similar(word, topn=number)
+        clues = model.most_similar(positive=[word], topn=number)
         return {new_word.lower(): score for new_word, score in clues}
 
-    temp = number
-    while True:
-        clues = model.most_similar(word, topn=temp)
-        parsed_words = [(clue, score) for (clue, score) in clues if is_valid_clue(clue, [word])]
-        if len(parsed_words) == number:
-            break
-        temp += 1
-    return {new_word.lower(): score for new_word, score in parsed_words}
+    board = CodenamesBoard(positive=[word])
+
+    valid_clues = get_n_valid_results(model, board, get_clues, number)
+    return {new_word.lower(): score for new_word, score in valid_clues}
 
 
-def read_codenames_board(positive: list[str], negative: list[str], neutral: list[str], assassin: list[str],
-                         n: int = 10) -> dict[str, float]:
+def read_codenames_board(board: CodenamesBoard, n: int = 10) -> WordScoresDict:
     model = load_model()
+    valid_clues = get_n_valid_results(model, board, get_clues, n)
+    return {new_word.lower(): score for new_word, score in valid_clues}
 
+
+def get_clues(model: KeyedVectors, board: CodenamesBoard, n: int = 10) -> WordScores:
+    return model.most_similar(positive=board.positive, negative=board.negative_associated(), topn=n)
+
+
+def get_n_valid_results(model: KeyedVectors, board: CodenamesBoard,
+                        get_words_fn: Callable[[KeyedVectors, CodenamesBoard, int], WordScores],
+                        n: int = 10) -> WordScores:
     temp = n
     while True:
-        clues = model.most_similar(positive=positive, negative=negative + neutral + assassin, topn=temp)
-        parsed_words = [(clue, score) for (clue, score) in clues if
-                        is_valid_clue(clue, positive + negative + neutral + assassin)]
-        if len(parsed_words) == n:
+        clues = get_words_fn(model, board, temp)
+        valid_clues = [(clue, score) for (clue, score) in clues if is_valid_clue(clue, board.board())]
+        if len(valid_clues) == n:
             break
         temp += 1
-    return {new_word.lower(): score for new_word, score in parsed_words}
+    return valid_clues
