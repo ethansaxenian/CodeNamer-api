@@ -24,9 +24,9 @@ def parse_query_param(key: str, default: Optional[Any] = None) -> Any:
 
 
 @app.route("/")
-def home_route():
-    readme = open("README.md", "r")
-    markdown_str = markdown.markdown(readme.read(), extensions=["fenced_code"])
+def readme():
+    readme_file = open("README.md", "r")
+    markdown_str = markdown.markdown(readme_file.read(), extensions=["fenced_code"])
     return markdown_str
 
 
