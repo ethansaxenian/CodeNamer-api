@@ -1,5 +1,7 @@
 from typing import Optional, Any
 
+import markdown
+import markdown.extensions.fenced_code
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
@@ -22,8 +24,10 @@ def parse_query_param(key: str, default: Optional[Any] = None) -> Any:
 
 
 @app.route("/")
-def home_route():
-    return "<p>CodeNamer api</p>"
+def readme():
+    readme_file = open("README.md", "r")
+    markdown_str = markdown.markdown(readme_file.read(), extensions=["fenced_code"])
+    return markdown_str
 
 
 @app.route("/clues")
