@@ -36,7 +36,7 @@ def get_clues():
     negative = parse_query_list("negative")
     neutral = parse_query_list("neutral")
     assassin = parse_query_param("assassin")
-    n = parse_query_param("n", 10)
+    n = parse_query_param("num", 10)
     board = CodenamesBoard(positive, negative, neutral, assassin)
     if not board.board():
         return {}
