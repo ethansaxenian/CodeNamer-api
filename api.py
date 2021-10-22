@@ -42,7 +42,6 @@ def get_clues():
     assassin = parse_query_param("assassin")
     num = parse_query_param("num", 10, int)
     board = CodenamesBoard(positive, negative, neutral, assassin)
-    print(board)
     if not board.board():
         abort(400, description="Missing required query parameter. "
                                "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
