@@ -1,12 +1,12 @@
-from typing import Optional, Any
+from typing import Optional, Any, Type
 
 import markdown
 import markdown.extensions.fenced_code
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
 
 from codenames_board import CodenamesBoard
-from word_association import similar_words, read_codenames_board
+from nlp_model import NLPModel
 from words import WORDS
 
 app = Flask(__name__)
@@ -18,9 +18,13 @@ def parse_query_list(key: str) -> list[str]:
     return result.split(" ") if result else []
 
 
-def parse_query_param(key: str, default: Optional[Any] = None) -> Any:
-    result = request.args.get(key)
-    return result or default
+def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type = str) -> Any:
+    return request.args.get(key, default=default, type=return_type)
+
+
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify(error=str(e)), 400
 
 
 @app.route("/")
@@ -36,20 +40,21 @@ def get_clues():
     negative = parse_query_list("negative")
     neutral = parse_query_list("neutral")
     assassin = parse_query_param("assassin")
-    n = parse_query_param("num", 10)
-    try:
-        board = CodenamesBoard(positive, negative, neutral, assassin)
-    except ValueError:
-        return {"error": "need to specify at least one word in query string"}
-    return read_codenames_board(board, int(n))
+    num = parse_query_param("num", 10, int)
+    board = CodenamesBoard(positive, negative, neutral, assassin)
+    if not board.board():
+        abort(400, description="Missing required query parameter. "
+                               "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
+    model = NLPModel()
+    return model.generate_valid_clues(board, num)
 
 
-@app.route("/words/<word>")
-def get_similar_words(word):
-    num = parse_query_param("num", 10)
-    # can specify "valid=false" in query string to return top n clues regardless of validity for codenames
-    wants_valid_clues = parse_query_param("valid", "true").lower() == "true"
-    return similar_words(word, int(num), wants_valid_clues)
+@app.route("/clues/<word>")
+def get_clues_for_word(word):
+    num = parse_query_param("num", 10, int)
+    model = NLPModel()
+    board = CodenamesBoard(positive=[word])
+    return model.generate_valid_clues(board, num)
 
 
 @app.route("/words")
