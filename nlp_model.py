@@ -17,17 +17,17 @@ class NLPModel:
 
         board = CodenamesBoard(positive=[word])
 
-        valid_clues = self.get_n_valid_results(board, number)
+        valid_clues = self.get_n_valid_clues(board, number)
         return {new_word.lower(): score for new_word, score in valid_clues}
 
     def read_codenames_board(self, board: CodenamesBoard, n: int = 10) -> WordScoresDict:
-        valid_clues = self.get_n_valid_results(board, n)
+        valid_clues = self.get_n_valid_clues(board, n)
         return {new_word.lower(): score for new_word, score in valid_clues}
 
     def get_clues(self, board: CodenamesBoard, n: int = 10) -> WordScores:
         return self.model.most_similar(positive=board.positive, negative=board.negative_associated(), topn=n)
 
-    def get_n_valid_results(self, board: CodenamesBoard, n: int = 10) -> WordScores:
+    def get_n_valid_clues(self, board: CodenamesBoard, n: int = 10) -> WordScores:
         temp = n
         while True:
             clues = self.get_clues(board, temp)
