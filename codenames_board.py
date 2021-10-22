@@ -11,11 +11,14 @@ class CodenamesBoard:
         self.neutral = neutral or []
         self.assassin = assassin
 
-    def board(self) -> list[str]:
-        return self.positive + self.negative + self.neutral + ([self.assassin] if self.has_assassin() else [])
+    def __repr__(self):
+        return f"{self.positive}\n{self.negative}\n{self.neutral}\n{self.assassin}"
 
     def has_assassin(self) -> bool:
         return self.assassin is not None
+
+    def board(self) -> list[str]:
+        return self.positive + self.negative + self.neutral + ([self.assassin] if self.has_assassin() else [])
 
     def negative_associated(self) -> list[str]:
         return self.negative + self.neutral + ([self.assassin] if self.has_assassin() else [])

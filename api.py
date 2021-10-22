@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional, Any, Type
 
 import markdown
 import markdown.extensions.fenced_code
@@ -18,9 +18,8 @@ def parse_query_list(key: str) -> list[str]:
     return result.split(" ") if result else []
 
 
-def parse_query_param(key: str, default: Optional[Any] = None) -> Any:
-    result = request.args.get(key)
-    return result or default
+def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type = str) -> Any:
+    return request.args.get(key, default=default, type=return_type)
 
 
 @app.route("/")
@@ -36,21 +35,21 @@ def get_clues():
     negative = parse_query_list("negative")
     neutral = parse_query_list("neutral")
     assassin = parse_query_param("assassin")
-    n = parse_query_param("num", 10)
+    num = parse_query_param("num", 10, int)
     board = CodenamesBoard(positive, negative, neutral, assassin)
+    print(board)
     if not board.board():
         return {}
     model = NLPModel()
-    return model.read_codenames_board(board, int(n))
+    return model.generate_valid_clues(board, num)
 
 
-@app.route("/words/<word>")
+@app.route("/clues/<word>")
 def get_similar_words(word):
-    num = parse_query_param("num", 10)
-    # can specify "valid=false" in query string to return top n clues regardless of validity for codenames
-    wants_valid_clues = parse_query_param("valid", "true").lower() == "true"
+    num = parse_query_param("num", 10, int)
     model = NLPModel()
-    return model.similar_words(word, int(num), wants_valid_clues)
+    board = CodenamesBoard(positive=[word])
+    return model.generate_valid_clues(board, num)
 
 
 @app.route("/words")
