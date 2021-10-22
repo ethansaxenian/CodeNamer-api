@@ -22,9 +22,9 @@ def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type
     return request.args.get(key, default=default, type=return_type)
 
 
-@app.errorhandler(404)
-def resource_not_found(e):
-    return jsonify(error=str(e)), 404
+@app.errorhandler(400)
+def bad_request(e):
+    return jsonify(error=str(e)), 400
 
 
 @app.route("/")
@@ -44,7 +44,8 @@ def get_clues():
     board = CodenamesBoard(positive, negative, neutral, assassin)
     print(board)
     if not board.board():
-        abort(404, description="missing required query parameter")
+        abort(400, description="Missing required query parameter. "
+                               "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
     model = NLPModel()
     return model.generate_valid_clues(board, num)
 
