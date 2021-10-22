@@ -8,7 +8,7 @@ Jinja2==3.0.2
 Markdown==3.3.4
 MarkupSafe==2.0.1
 numpy==1.21.3
-opencv-python==4.5.3.56
+opencv-python==4.5.4.58
 Pillow==8.4.0
 pytesseract==0.3.8
 python-dotenv==0.19.1
