@@ -2,7 +2,6 @@ from gensim.models import KeyedVectors
 
 from codenames_board import CodenamesBoard
 
-WordScores = list[tuple[str, float]]
 WordScoresDict = dict[str, float]
 
 
@@ -15,7 +14,7 @@ class NLPModel:
         return self.model.most_similar(positive=board.positive, negative=board.negative_associated(), topn=num)
 
     def generate_valid_clues(self, board: CodenamesBoard, num: int) -> WordScoresDict:
-        """given a Codenames board, returns the best valid clues"""
+        """given a Codenames board, returns the most similar valid clues"""
         temp = num
         while True:
             words = self.generate_similar_words(board, temp)
