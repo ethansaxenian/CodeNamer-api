@@ -51,7 +51,7 @@ def get_clues():
 
 
 @app.route("/clues/<word>")
-def get_similar_words(word):
+def get_clues_for_word(word):
     num = parse_query_param("num", 10, int)
     model = NLPModel()
     board = CodenamesBoard(positive=[word])
