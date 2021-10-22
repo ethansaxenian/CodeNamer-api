@@ -2,7 +2,7 @@ from typing import Optional, Any, Type
 
 import markdown
 import markdown.extensions.fenced_code
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 from flask_cors import CORS
 
 from codenames_board import CodenamesBoard
@@ -22,6 +22,11 @@ def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type
     return request.args.get(key, default=default, type=return_type)
 
 
+@app.errorhandler(404)
+def resource_not_found(e):
+    return jsonify(error=str(e)), 404
+
+
 @app.route("/")
 def readme():
     readme_file = open("README.md", "r")
@@ -39,7 +44,7 @@ def get_clues():
     board = CodenamesBoard(positive, negative, neutral, assassin)
     print(board)
     if not board.board():
-        return {}
+        abort(404, description="missing required query parameter")
     model = NLPModel()
     return model.generate_valid_clues(board, num)
 
