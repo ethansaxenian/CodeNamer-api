@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from codenames_board import CodenamesBoard
-from word_association import similar_words, read_codenames_board
+from nlp_model import NLPModel
 from words import WORDS
 
 app = Flask(__name__)
@@ -33,11 +33,11 @@ def get_clues():
     neutral = parse_query_list("neutral")
     assassin = parse_query_param("assassin")
     n = parse_query_param("n", 10)
-    try:
-        board = CodenamesBoard(positive, negative, neutral, assassin)
-    except ValueError:
-        return {"error": "need to specify at least one word in query string"}
-    return read_codenames_board(board, int(n))
+    board = CodenamesBoard(positive, negative, neutral, assassin)
+    if not board.board():
+        return {}
+    model = NLPModel()
+    return model.read_codenames_board(board, int(n))
 
 
 @app.route("/words/<word>")
@@ -45,7 +45,8 @@ def get_similar_words(word):
     num = parse_query_param("num", 10)
     # can specify "valid=false" in query string to return top n clues regardless of validity for codenames
     wants_valid_clues = parse_query_param("valid", "true").lower() == "true"
-    return similar_words(word, int(num), wants_valid_clues)
+    model = NLPModel()
+    return model.similar_words(word, int(num), wants_valid_clues)
 
 
 @app.route("/words")
