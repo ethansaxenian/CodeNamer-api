@@ -1,7 +1,9 @@
 # CodeNamer-api
-https://code-namer.herokuapp.com/
 
-An api written in flask to work with https://github.com/ethansaxenian/CodeNamer
+A companion api designed to work alongside the [CodeNamer](https://github.com/ethansaxenian/CodeNamer) app that provides
+various python scripts for image processing and natural language processing.
+
+Visit the api online: https://code-namer.herokuapp.com/
 
 ### Installation and setup instructions:
 
