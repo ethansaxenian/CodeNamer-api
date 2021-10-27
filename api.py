@@ -34,27 +34,29 @@ def readme():
     return markdown_str
 
 
-@app.route("/clues")
-def get_clues():
-    positive = parse_query_list("positive")
-    negative = parse_query_list("negative")
-    neutral = parse_query_list("neutral")
-    assassin = parse_query_param("assassin")
+@app.route("/clues/<color>")
+def get_clues(color):
+    if not color.lower() in ("red", "blue"):
+        abort(400, description="Invalid color. Must be 'red' or 'blue'")
+    reds = parse_query_list("red")
+    blues = parse_query_list("blue")
+    tans = parse_query_list("tan")
+    black = parse_query_param("black")
     num = parse_query_param("num", 10, int)
-    board = CodenamesBoard(positive, negative, neutral, assassin)
+    board = CodenamesBoard(reds, blues, tans, black)
     if not board.board():
         abort(400, description="Missing required query parameter. "
                                "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
     model = NLPModel()
-    return model.generate_valid_clues(board, num)
+    return model.generate_valid_clues(board, num, color.lower())
 
 
-@app.route("/clues/<word>")
+@app.route("/words/<word>")
 def get_clues_for_word(word):
     num = parse_query_param("num", 10, int)
     model = NLPModel()
-    board = CodenamesBoard(positive=[word])
-    return model.generate_valid_clues(board, num)
+    board = CodenamesBoard(red=[word])
+    return model.generate_valid_clues(board, num, color="red")
 
 
 @app.route("/words")
