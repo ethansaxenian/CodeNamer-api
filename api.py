@@ -2,11 +2,13 @@ from typing import Optional, Any, Type
 
 import markdown
 import markdown.extensions.fenced_code
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, json, jsonify, abort
 from flask_cors import CORS
+import base64
 
 from codenames_board import CodenamesBoard
 from nlp_model import NLPModel
+from color_recognition import colorCard 
 from words import WORDS
 
 app = Flask(__name__)
@@ -20,6 +22,10 @@ def parse_query_list(key: str) -> list[str]:
 
 def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type = str) -> Any:
     return request.args.get(key, default=default, type=return_type)
+
+def convert_and_save(b64_string):
+    with open("imageToSave.jpeg", "wb") as fh:
+        fh.write(base64.b64decode(b64_string))
 
 
 @app.errorhandler(400)
@@ -55,6 +61,13 @@ def get_clues_for_word(word):
     model = NLPModel()
     board = CodenamesBoard(positive=[word])
     return model.generate_valid_clues(board, num)
+
+@app.route("/colors", methods = ['POST'])
+def get_color_code():
+    if request.data:
+        card = colorCard()
+        return (jsonify(card.getColorCode(request.data)))
+    return jsonify("error")
 
 
 @app.route("/words")
