@@ -15,6 +15,7 @@ CORS(app)
 
 def parse_query_list(key: str) -> list[str]:
     result = request.args.get(key)
+    print(result)
     return result.split(" ") if result else []
 
 
@@ -48,7 +49,7 @@ def get_clues(color):
         abort(400, description="Missing required query parameter. "
                                "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
     model = NLPModel()
-    return model.generate_valid_clues(board, num, color.lower())
+    return jsonify(model.generate_valid_clues(board, num, color.lower()))
 
 
 @app.route("/words/<word>")
