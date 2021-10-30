@@ -1,9 +1,9 @@
 from typing import Optional
 
-from words import WORDS
-
 
 class CodenamesBoard:
+    # since the model is uncased, use this dict to convert input words to the correct form
+    # note that if the model changes, these pairs will need to be updated
     preprocessing_dict = {
         'alps': 'Alps',
         'antarctica': 'Antarctica',
@@ -31,15 +31,19 @@ class CodenamesBoard:
 
     def __init__(self, red: Optional[list[str]] = None, blue: Optional[list[str]] = None,
                  tan: Optional[list[str]] = None, black: Optional[str] = None):
-        self.red = red or []
-        self.blue = blue or []
-        self.neutral = tan or []
-        self.assassin = black
-        # self.english_words = set(line.strip().lower() for line in open("english_words.txt"))
-        self.english_words = set(WORDS)
+        self.red = [self.preprocess_word(word) for word in red] if red is not None else []
+        self.blue = [self.preprocess_word(word) for word in blue] if blue is not None else []
+        self.neutral = [self.preprocess_word(word) for word in tan] if tan is not None else []
+        self.assassin = self.preprocess_word(black)
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
+
+    def preprocess_word(self, word: str) -> str:
+        try:
+            return self.preprocessing_dict[word]
+        except KeyError:
+            return word
 
     def has_assassin(self) -> bool:
         return self.assassin is not None
@@ -73,6 +77,4 @@ class CodenamesBoard:
             return False
         if any(clue.lower() in word.lower() for word in self.board()):
             return False
-        # if clue not in self.english_words:
-        #     return False
         return True
