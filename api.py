@@ -15,7 +15,6 @@ CORS(app)
 
 def parse_query_list(key: str) -> list[str]:
     result = request.args.get(key)
-    print(result)
     return result.split(" ") if result else []
 
 
