@@ -67,21 +67,21 @@ def get_clues_for_word(word):
     return model.generate_valid_clues(board, num, color="red")
 
 
-# @app.route("/colors", methods=['POST'])
-# def get_color_code():
-#     if request.data:
-#         card = colorCard()
-#         return jsonify(card.getColorCode(request.data))
-#     return jsonify("error")
-#
-#
-# @app.route("/gameboard", methods=['POST'])
-# def get_game_text():
-#     if request.data:
-#         board = gameBoard()
-#         print(jsonify(board.getGameText(request.data)))
-#         return jsonify(board.getGameText(request.data))
-#     return jsonify("error")
+@app.route("/colors", methods=['POST'])
+def get_color_code():
+    if request.data:
+        card = colorCard()
+        return jsonify(card.getColorCode(request.data))
+    return jsonify("error")
+
+
+@app.route("/gameboard", methods=['POST'])
+def get_game_text():
+    if request.data:
+        board = gameBoard()
+        print(jsonify(board.getGameText(request.data)))
+        return jsonify(board.getGameText(request.data))
+    return jsonify("error")
 
 
 @app.route("/words")
