@@ -9,6 +9,7 @@ import base64
 from codenames_board import CodenamesBoard
 from nlp_model import NLPModel
 from color_recognition import colorCard 
+from text_recognition import gameBoard 
 from words import WORDS
 
 app = Flask(__name__)
@@ -67,6 +68,14 @@ def get_color_code():
     if request.data:
         card = colorCard()
         return (jsonify(card.getColorCode(request.data)))
+    return jsonify("error")
+
+@app.route("/gameboard", methods = ['POST'])
+def get_game_text():
+    if request.data:
+        board = gameBoard()
+        print(jsonify(board.getGameText(request.data)))
+        return (jsonify(board.getGameText(request.data)))
     return jsonify("error")
 
 
