@@ -5,23 +5,30 @@ from models.google_news_missing_words import google_news_preprocessing_dict
 
 
 class CodenamesBoard:
-    # since the model is uncased, use this dict to convert input words to the correct form
-    # note this dict is different depending on the model used
-    preprocessing_dict = google_news_preprocessing_dict
-
     def __init__(self, red: Optional[list[str]] = None, blue: Optional[list[str]] = None,
-                 tan: Optional[list[str]] = None, black: Optional[str] = None):
-        self.red = [self.preprocess_word(word) for word in red] if red is not None else []
-        self.blue = [self.preprocess_word(word) for word in blue] if blue is not None else []
-        self.neutral = [self.preprocess_word(word) for word in tan] if tan is not None else []
-        self.assassin = self.preprocess_word(black)
+                 tan: Optional[list[str]] = None, black: Optional[str] = None,
+                 model_name: str = "word2vec-google-news-300"):
+        self.red = [self.preprocess_word(word, model_name) for word in red] if red is not None else []
+        self.blue = [self.preprocess_word(word, model_name) for word in blue] if blue is not None else []
+        self.neutral = [self.preprocess_word(word, model_name) for word in tan] if tan is not None else []
+        self.assassin = self.preprocess_word(black, model_name)
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
 
-    def preprocess_word(self, word: str) -> str:
+    def preprocess_word(self, word: str, model_name: str) -> str:
         try:
-            return self.preprocessing_dict[word]
+
+            if model_name == "word2vec-google-news-300":
+                preprocessing_dict = google_news_preprocessing_dict
+            elif model_name == "fasttext-wiki-news-subwords-300":
+                preprocessing_dict = fasttext_preprocessing_dict
+            else:
+                raise ValueError("Invalid model name")
+
+            # since the model is uncased, use this dict to convert input words to the correct form
+            return preprocessing_dict[word]
+
         except KeyError:
             return word
 
