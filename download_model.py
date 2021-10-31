@@ -11,19 +11,27 @@ KEYED_VECTORS_PATH = f"~/gensim-data/{MODEL_NAME}/{MODEL_NAME}.gz"
 
 # api.load(MODEL_NAME)
 
-#
 model = gensim.models.KeyedVectors.load_word2vec_format(
     KEYED_VECTORS_PATH, binary=True, limit=80000, unicode_errors='ignore'
 )
 
-model.save(f"models/{MODEL_NAME}")
+while True:
+    user_input = input("enter a word: ")
+    if user_input == "x":
+        break
+    try:
+        print(list(model.get_vector(user_input)))
+        print(model.most_similar(user_input))
+    except KeyError:
+        print(f"{user_input} not found")
+
+# model.save(f"models/{MODEL_NAME}")
 
 # model = KeyedVectors.load(f"models/{MODEL_NAME}")
 #
-#
-# x = ['africa', 'alps', 'amazon', 'america', 'antarctica', 'atlantis', 'australia', 'aztec', 'beijing', 'berlin', 'bermuda', 'bugle', 'canada', 'centaur', 'czech', 'egypt', 'england', 'europe', 'france', 'germany', 'greece', 'himalayas', 'hollywood', 'ice cream', 'jupiter', 'leprechaun', 'loch ness', 'london', 'mexico', 'moscow', 'new york', 'olympus', 'platypus', 'robin', 'rome', 'saturn', 'scorpion', 'scuba diver', 'shakespeare', 'tokyo', 'undertaker', 'unicorn', 'washington']
-#
 # bad_words = []
+#
+# x = ['africa', 'alps', 'amazon', 'america', 'antarctica', 'atlantis', 'australia', 'aztec', 'beijing', 'berlin', 'bermuda', 'bugle', 'canada', 'centaur', 'czech', 'egypt', 'england', 'europe', 'france', 'germany', 'greece', 'himalayas', 'hollywood', 'ice cream', 'jupiter', 'leprechaun', 'loch ness', 'london', 'mexico', 'moscow', 'new york', 'olympus', 'phoenix', 'platypus', 'robin', 'rome', 'saturn', 'scorpion', 'scuba diver', 'shakespeare', 'tokyo', 'undertaker', 'unicorn', 'washington']
 #
 # d = {i: i.capitalize() for i in x}
 #

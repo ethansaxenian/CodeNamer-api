@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from gensim.models import KeyedVectors
 
 from codenames_board import CodenamesBoard
+from models.fasttext_missing_words import fasttext_missing_words
+from models.google_news_missing_words import google_news_missing_words
 
 WordScoresDict = dict[str, float]
 
@@ -18,12 +20,10 @@ class Clue:
 class NLPModel:
     def __init__(self):
         # possible models are fasttext-wiki-news-subwords-300 and word2vec-google-news-300
-        self.model: KeyedVectors = KeyedVectors.load(f'models/fasttext-wiki-news-subwords-300')
+        self.model: KeyedVectors = KeyedVectors.load(f'models/word2vec-google-news-300')
         self.model.sort_by_descending_frequency()
-        self.english_words = set(line.strip().lower() for line in open("english_words.txt"))
-
-    def is_valid_english_word(self, word: str) -> bool:
-        return word in self.english_words
+        for key, vector in google_news_missing_words.items():
+            self.model.add_vector(key, vector)
 
     def generate_similar_words(self, positive: list[str], negative: list[str], num: int):
         """given a Codenames board, returns the most similar words, regardless of validity"""
@@ -55,7 +55,7 @@ class NLPModel:
                         if not board.is_valid_clue(word):
                             pass
                         else:
-                            new_clue = Clue(word.lower(), score, positive_group)
+                            new_clue = Clue(word, score, [w.lower().replace("_", " ") for w in positive_group])
                             valid_clues.append(new_clue)
 
                         if len(valid_clues) == num:

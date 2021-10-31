@@ -1,33 +1,13 @@
 from typing import Optional
 
+from models.fasttext_missing_words import fasttext_preprocessing_dict
+from models.google_news_missing_words import google_news_preprocessing_dict
+
 
 class CodenamesBoard:
     # since the model is uncased, use this dict to convert input words to the correct form
-    # note that if the model changes, these pairs will need to be updated
-    preprocessing_dict = {
-        'alps': 'Alps',
-        'antarctica': 'Antarctica',
-        'atlantis': 'Atlantis',
-        'aztec': 'Aztec',
-        'beijing': 'Beijing',
-        'berlin': 'Berlin',
-        'bermuda': 'Bermuda',
-        'centaur': 'Centaur',
-        'czech': 'Czech',
-        'himalayas': 'Himalayas',
-        'ice cream': 'ice-cream',
-        'jupiter': 'Jupiter',
-        'leprechaun': 'elf',
-        'loch ness': 'Loch',
-        'moscow': 'Moscow',
-        'new york': 'New-York',
-        'olympus': 'Olympus',
-        'rome': 'Rome',
-        'saturn': 'Saturn',
-        'scuba diver': 'diver',
-        'shakespeare': 'Shakespeare',
-        'tokyo': 'Tokyo'
-    }
+    # note this dict is different depending on the model used
+    preprocessing_dict = google_news_preprocessing_dict
 
     def __init__(self, red: Optional[list[str]] = None, blue: Optional[list[str]] = None,
                  tan: Optional[list[str]] = None, black: Optional[str] = None):
