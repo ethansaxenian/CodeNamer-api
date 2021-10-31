@@ -1,8 +1,7 @@
+import cv2
 import numpy as np
 import base64
 import io
-
-from cv2 import cv2
 from imageio import imread
 import pandas
 import random as rng
