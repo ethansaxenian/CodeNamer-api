@@ -1,7 +1,8 @@
-import cv2
 import numpy as np
 import base64
 import io
+
+from cv2 import cv2
 from imageio import imread
 import pandas
 import random as rng
@@ -18,7 +19,7 @@ class colorCard:
     def getColorName(self, R,G,B):
         minimum = 10000
         #define colors to match known colorcard pixel values
-        colors = [[210, 37, 51],[217, 200, 155],[17, 118, 157], [67, 64, 63]] 
+        colors = [[210, 37, 51],[217, 200, 155],[17, 118, 157], [67, 64, 63]]
         color_names = ["red", "tan", "blue", "black"]
 
         #determine minimum distance and assign corresponding color name
@@ -56,14 +57,14 @@ class colorCard:
 
                 # Else remove root and insert
                 innerGrid.put((-diff,i))
-                
+
         final = []
         while(not innerGrid.empty()):
             ratio,rank = innerGrid.get()
             final.append(contourRatios[rank])
 
         return final
-        
+
 
     def getColorCode(self, imgEncoding):
         img = imread(io.BytesIO(base64.b64decode(imgEncoding)))
@@ -71,11 +72,11 @@ class colorCard:
 
         color_pattern = []
         output = ""
-        
+
 
         #convert image to RGB pixel values for color identification
         cimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        
+
         #Convert image to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (3, 3), 0)
@@ -94,21 +95,21 @@ class colorCard:
 
         grid_ratios = []
         for c in orig_contours:
-            area = cv2.contourArea(c) 
+            area = cv2.contourArea(c)
             grid_ratio = area / float(maxArea)
             if((grid_ratio >= 0.01 and grid_ratio <= .03)):
                 grid_ratios.append(grid_ratio)
 
 
         inner_grid = self.matchInnerRatios(grid_ratios, 25)
-        
+
         contours = []
         xcoords = []
         ycoords = []
 
         #isolate inner grid and rank contour coordinates by quantile
         for i,c in enumerate(orig_contours):
-            area = cv2.contourArea(c) 
+            area = cv2.contourArea(c)
             grid_ratio = area / float(maxArea)
             if(grid_ratio in inner_grid):
                 contours.append(orig_contours[i])
@@ -122,7 +123,7 @@ class colorCard:
 
         #sort contours
         contours, xcoords, ycoords = zip(*sorted(zip(contours, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
-        
+
         contours_poly = [None]*len(contours)
         boundRect = [None]*len(contours)
 
@@ -133,14 +134,14 @@ class colorCard:
             boundRect[i] = cv2.boundingRect(contours_poly[i])
 
         drawing = np.zeros((threshInv.shape[0], threshInv.shape[1], 3), dtype=np.uint8)
-        
+
 
         #Draw bonding rects
         for i,c in enumerate(contours):
             color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
             cv2.rectangle(drawing, (int(boundRect[i][0]), int(boundRect[i][1])), \
                 (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), color, 2)
-            
+
             cropped = img[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])]
 
             avg_color = cv2.mean(cimg[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])])
@@ -157,4 +158,3 @@ class colorCard:
 
         # cv2.destroyAllWindows()
         return(color_pattern)
-
