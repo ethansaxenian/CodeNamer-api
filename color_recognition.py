@@ -1,3 +1,5 @@
+import sys
+
 import cv2
 import numpy as np
 import base64
@@ -66,6 +68,7 @@ class colorCard:
 
 
     def getColorCode(self, imgEncoding):
+        # img= cv2.imread(imgEncoding,cv2.IMREAD_COLOR)
         img = imread(io.BytesIO(base64.b64decode(imgEncoding)))
         img = cv2.cvtColor(img, cv2.IMREAD_ANYCOLOR)
 
@@ -141,19 +144,25 @@ class colorCard:
             cv2.rectangle(drawing, (int(boundRect[i][0]), int(boundRect[i][1])), \
                 (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), color, 2)
 
-            cropped = img[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])]
-
+            cropped = cimg[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])]
+            # #Show in a window
+            # cv2.imshow('Contours', cropped)
+            # cv2.waitKey(0)
             avg_color = cv2.mean(cimg[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])])
             label = self.getColorName(avg_color[0], avg_color[1], avg_color[2])
             color_pattern.append(label)
 
             cv2.putText(drawing, str(i), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), cv2.FONT_HERSHEY_SIMPLEX, .4, color, 2, cv2.LINE_AA)
+            
 
-
-        # Show in a window
+        # #Show in a window
         # cv2.imshow('Contours', drawing)
         # cv2.waitKey(0)
 
 
         # cv2.destroyAllWindows()
         return(color_pattern)
+
+# if __name__ == '__main__':
+#         card = colorCard()
+#         card.getColorCode(sys.argv[1])
