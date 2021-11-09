@@ -31,8 +31,7 @@ class NLPModel:
         else:
             raise ValueError("Invalid model name")
 
-        for key, vector in missing_words.items():
-            self.model.add_vector(key, vector)
+        self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
 
     def smaller_model(self, board: CodenamesBoard, color: str, topn: int = 10) -> KeyedVectors:
         available_clues = self.model.most_similar(positive=board.positive(color), topn=topn)
