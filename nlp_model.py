@@ -31,27 +31,28 @@ class NLPModel:
         else:
             raise ValueError("Invalid model name")
 
-        for key, vector in missing_words.items():
-            self.model.add_vector(key, vector)
+        self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
 
     def smaller_model(self, board: CodenamesBoard, color: str, topn: int = 10) -> KeyedVectors:
         available_clues = self.model.most_similar(positive=board.positive(color), topn=topn)
         return self.model.vectors_for_all([w for w, s in available_clues] + board.board())
 
-    def generate_valid_clues(self, board: CodenamesBoard, num: int, color: str) -> list[Clue]:
+    def generate_valid_clues(self, board: CodenamesBoard, num_clues: int, color: str, clue_size: int = None) -> list[Clue]:
         assert color in ("red", "blue")
 
         smaller_model = self.smaller_model(board, color, 10000)
 
         results_by_number = defaultdict(list)
 
-        for i in [2, 3, 4]:
+        clue_sizes = [clue_size] if clue_size is not None else [2, 3, 4]
+
+        for i in clue_sizes:
             for positive_group in itertools.combinations(board.positive(color), i):
 
-                temp = num
+                temp = num_clues
                 valid_clues = []
 
-                while len(valid_clues) != num:
+                while len(valid_clues) != num_clues:
                     words = smaller_model.most_similar(positive=positive_group, negative=board.negative(color), topn=temp)
 
                     for (word, score) in words:
@@ -59,7 +60,7 @@ class NLPModel:
                             new_clue = Clue(word.lower(), score, [w.lower().replace("_", " ") for w in positive_group])
                             valid_clues.append(new_clue)
 
-                        if len(valid_clues) == num:
+                        if len(valid_clues) == num_clues:
                             results_by_number[i].extend(valid_clues)
                             break
 
@@ -74,4 +75,4 @@ class NLPModel:
                 best_clue = max(same_clues, key=lambda clue: clue.score)
                 unique_clues.append(best_clue)
 
-        return sorted(unique_clues, key=lambda clue: clue.score, reverse=True)[:num]
+        return sorted(unique_clues, key=lambda clue: clue.score, reverse=True)[:num_clues]
