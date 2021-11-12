@@ -8,8 +8,6 @@ from codenames_board import CodenamesBoard
 from models.fasttext_missing_words import fasttext_missing_words
 from models.google_news_missing_words import google_news_missing_words
 
-WordScoresDict = dict[str, float]
-
 
 @dataclass
 class Clue:
@@ -37,7 +35,7 @@ class NLPModel:
         available_clues = self.model.most_similar(positive=board.positive(color), topn=topn)
         return self.model.vectors_for_all([w for w, s in available_clues] + board.board())
 
-    def generate_valid_clues(self, board: CodenamesBoard, num_clues: int, color: str, clue_size: int = None) -> list[Clue]:
+    def generate_valid_clues(self, board: CodenamesBoard, num_clues: int, color: str, clue_size: int = None) -> dict[int, list[Clue]]:
         assert color in ("red", "blue")
 
         smaller_model = self.smaller_model(board, color, 10000)
@@ -66,13 +64,19 @@ class NLPModel:
 
                     temp += 1
 
-        unique_clues = []
+        unique_clues_by_number = defaultdict(list)
 
         for i in results_by_number.keys():
+
             all_clues = set(clue.word for clue in results_by_number[i])
+            temp_unique_clues = []
+
             for word in all_clues:
                 same_clues = [clue for clue in results_by_number[i] if clue.word == word]
                 best_clue = max(same_clues, key=lambda clue: clue.score)
-                unique_clues.append(best_clue)
+                temp_unique_clues.append(best_clue)
 
-        return sorted(unique_clues, key=lambda clue: clue.score, reverse=True)[:num_clues]
+            sorted_temp_unique_clues = sorted(temp_unique_clues, key=lambda clue: clue.score, reverse=True)
+            unique_clues_by_number[i].extend(sorted_temp_unique_clues[:num_clues])
+
+        return unique_clues_by_number
