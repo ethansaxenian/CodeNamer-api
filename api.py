@@ -43,8 +43,7 @@ def readme():
 
 
 @app.route("/clues/<color>")
-@app.route("/clues/<color>/<int:clue_size>")
-def get_clues(color, clue_size=None):
+def get_clues(color):
     if not color.lower() in ("red", "blue"):
         abort(400, description="Invalid color. Must be 'red' or 'blue'")
 
@@ -53,21 +52,13 @@ def get_clues(color, clue_size=None):
     tans = parse_query_list("tan")
     black = parse_query_param("black")
 
-    if color.lower() == "red":
-        clue_size_upper_bound = len(reds)
-    elif color.lower() == "blue":
-        clue_size_upper_bound = len(blues)
-
-    if clue_size is not None and (2 > clue_size or clue_size > clue_size_upper_bound):
-        abort(400, description=f"<clue_size> must be an integer between 2 and {clue_size_upper_bound}")
-
-    num_clues = parse_query_param("num", 10, int)
     board = CodenamesBoard(reds, blues, tans, black)
+
     if not board.board():
         abort(400, description="Missing required query parameter. "
                                "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
     model = NLPModel()
-    return jsonify(model.generate_valid_clues(board, num_clues, color.lower(), clue_size))
+    return jsonify(model.generate_valid_clues(board, color.lower()))
 
 
 @app.route("/words/<word>")

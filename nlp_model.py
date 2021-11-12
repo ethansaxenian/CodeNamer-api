@@ -31,26 +31,30 @@ class NLPModel:
 
         self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
 
+        # controls how many valid clues the algorithm will generate for each combination
+        self.num_valid_clues_per_word_group = 10
+
+        # controls how many clues of each size that will be returned in the response object
+        self.clues_per_size_to_return = 5
+
     def smaller_model(self, board: CodenamesBoard, color: str, topn: int = 10) -> KeyedVectors:
         available_clues = self.model.most_similar(positive=board.positive(color), topn=topn)
         return self.model.vectors_for_all([w for w, s in available_clues] + board.board())
 
-    def generate_valid_clues(self, board: CodenamesBoard, num_clues: int, color: str, clue_size: int = None) -> dict[int, list[Clue]]:
+    def generate_valid_clues(self, board: CodenamesBoard, color: str) -> dict[int, list[Clue]]:
         assert color in ("red", "blue")
 
         smaller_model = self.smaller_model(board, color, 10000)
 
         results_by_number = defaultdict(list)
 
-        clue_sizes = [clue_size] if clue_size is not None else [2, 3, 4]
-
-        for i in clue_sizes:
+        for i in [2, 3, 4]:
             for positive_group in itertools.combinations(board.positive(color), i):
 
-                temp = num_clues
+                temp = self.num_valid_clues_per_word_group
                 valid_clues = []
 
-                while len(valid_clues) != num_clues:
+                while len(valid_clues) != self.num_valid_clues_per_word_group:
                     words = smaller_model.most_similar(positive=positive_group, negative=board.negative(color), topn=temp)
 
                     for (word, score) in words:
@@ -58,7 +62,7 @@ class NLPModel:
                             new_clue = Clue(word.lower(), score, [w.lower().replace("_", " ") for w in positive_group])
                             valid_clues.append(new_clue)
 
-                        if len(valid_clues) == num_clues:
+                        if len(valid_clues) == self.num_valid_clues_per_word_group:
                             results_by_number[i].extend(valid_clues)
                             break
 
@@ -77,6 +81,6 @@ class NLPModel:
                 temp_unique_clues.append(best_clue)
 
             sorted_temp_unique_clues = sorted(temp_unique_clues, key=lambda clue: clue.score, reverse=True)
-            unique_clues_by_number[i].extend(sorted_temp_unique_clues[:num_clues])
+            unique_clues_by_number[i].extend(sorted_temp_unique_clues[:self.clues_per_size_to_return])
 
         return unique_clues_by_number
