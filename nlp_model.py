@@ -32,7 +32,7 @@ class NLPModel:
         self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
 
         # controls how many valid clues the algorithm will generate for each combination
-        self.num_valid_clues_per_word_group = 10
+        self.num_valid_clues_per_word_group = 100
 
         # controls how many clues of each size that will be returned in the response object
         self.clues_per_size_to_return = 5
