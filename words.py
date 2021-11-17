@@ -32,3 +32,13 @@ WORDS = ['africa', 'agent', 'air', 'alien', 'alps', 'amazon', 'ambulance', 'amer
          'thumb', 'tick', 'tie', 'time', 'tokyo', 'tooth', 'torch', 'tower', 'track', 'train', 'triangle', 'trip',
          'trunk', 'tube', 'turkey', 'undertaker', 'unicorn', 'vacuum', 'van', 'vet', 'wake', 'wall', 'war', 'washer',
          'washington', 'watch', 'water', 'wave', 'web', 'well', 'whale', 'whip', 'wind', 'witch', 'worm', 'yard']
+
+
+two_word_mapping = {
+    "new": "new york",
+    "york": "new york",
+    "ice": "ice cream",
+    "cream": "ice cream",
+    "loch": "loch ness",
+    "ness": "loch ness"
+}
