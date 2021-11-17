@@ -61,6 +61,14 @@ def get_clues(color):
     return jsonify(model.generate_valid_clues(board, color.lower()))
 
 
+@app.route("/words/<word>")
+def get_clues_for_word(word):
+    num = parse_query_param("num", 10, int)
+    model = NLPModel()
+    board = CodenamesBoard(red=[word])
+    return model.generate_valid_clues(board, num, color="red")
+
+
 @app.route("/colors", methods=['POST'])
 def get_color_code():
     if request.data:
@@ -73,6 +81,7 @@ def get_color_code():
 def get_game_text():
     if request.data:
         board = gameBoard()
+        print(jsonify(board.getGameText(request.data)))
         return jsonify(board.getGameText(request.data))
     return jsonify("error")
 

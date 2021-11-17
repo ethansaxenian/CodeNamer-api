@@ -1,7 +1,5 @@
 from typing import Optional
 
-from nltk.stem.porter import PorterStemmer
-
 from models.fasttext_missing_words import fasttext_preprocessing_dict
 from models.google_news_missing_words import google_news_preprocessing_dict
 
@@ -14,9 +12,6 @@ class CodenamesBoard:
         self.blue = [self.preprocess_word(word, model_name) for word in blue] if blue is not None else []
         self.neutral = [self.preprocess_word(word, model_name) for word in tan] if tan is not None else []
         self.assassin = self.preprocess_word(black, model_name)
-
-        self.ps = PorterStemmer()
-        self.board_stems = set(self.ps.stem(word) for word in self.board())
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
@@ -65,13 +60,8 @@ class CodenamesBoard:
     def is_valid_clue(self, clue: str) -> bool:
         if not clue.isalpha():
             return False
-
-        for word in self.board():
-            if word.lower() in clue.lower():
-                return False
-            if clue.lower() in word.lower():
-                return False
-            if self.ps.stem(clue) in self.board_stems:
-                return False
-
+        if any(word.lower() in clue.lower() for word in self.board()):
+            return False
+        if any(clue.lower() in word.lower() for word in self.board()):
+            return False
         return True
