@@ -32,7 +32,7 @@ class NLPModel:
         self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
 
         # controls how many valid clues the algorithm will generate for each combination
-        self.num_valid_clues_per_word_group = 10
+        self.num_valid_clues_per_word_group = 100
 
         # controls how many clues of each size that will be returned in the response object
         self.clues_per_size_to_return = 5
@@ -59,8 +59,10 @@ class NLPModel:
 
                     for (word, score) in words:
                         if board.is_valid_clue(word):
-                            new_clue = Clue(word.lower(), score, [w.lower().replace("_", " ") for w in positive_group])
-                            valid_clues.append(new_clue)
+                            # if there is an assassin, make sure that any clues are at most orthogonal to it
+                            if not board.has_assassin() or smaller_model.similarity(word, board.assassin) <= 0:
+                                new_clue = Clue(word.lower(), score, [w.lower().replace("_", " ") for w in positive_group])
+                                valid_clues.append(new_clue)
 
                         if len(valid_clues) == self.num_valid_clues_per_word_group:
                             results_by_number[i].extend(valid_clues)
