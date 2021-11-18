@@ -10,7 +10,7 @@ from codenames_board import CodenamesBoard
 from nlp_model import NLPModel
 from color_recognition import colorCard
 from text_recognition import gameBoard
-from words import WORDS
+from words import ALL_WORDS
 
 app = Flask(__name__)
 CORS(app)
@@ -88,4 +88,4 @@ def get_game_text():
 
 @app.route("/words")
 def get_words():
-    return jsonify(WORDS)
+    return jsonify(ALL_WORDS)
