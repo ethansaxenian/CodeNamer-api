@@ -11,7 +11,7 @@ from PIL import Image
 from statistics import mode, mean, median
 from queue import PriorityQueue
 
-from words import WORDS
+from words import ALL_WORDS
 
 class colorCard:
     def __init__(self):
@@ -153,7 +153,7 @@ class colorCard:
             color_pattern.append(label)
 
             cv2.putText(drawing, str(i), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), cv2.FONT_HERSHEY_SIMPLEX, .4, color, 2, cv2.LINE_AA)
-            
+
 
         # #Show in a window
         # cv2.imshow('Contours', drawing)

@@ -8,7 +8,7 @@ import base64
 import io
 from imageio import imread
 
-from words import WORDS, two_word_mapping
+from words import ALL_WORDS, two_word_mapping
 
 
 def codenamify_words(word_list):
@@ -24,7 +24,7 @@ def codenamify_words(word_list):
         else:
             mapped_words.append(two_word_mapping.get(word, word))
 
-    return sorted(list(set(WORDS) & set(mapped_words)), key=mapped_words.index)
+    return sorted(list(set(ALL_WORDS) & set(mapped_words)), key=mapped_words.index)
 
 
 class gameBoard:

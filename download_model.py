@@ -4,7 +4,7 @@ import gensim
 import gensim.downloader as api
 from gensim.models import KeyedVectors
 
-from words import WORDS
+from words import ALL_WORDS
 
 MODEL_NAME = "word2vec-google-news-300"
 KEYED_VECTORS_PATH = f"~/gensim-data/{MODEL_NAME}/{MODEL_NAME}.gz"
