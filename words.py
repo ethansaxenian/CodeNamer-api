@@ -27,7 +27,7 @@ WORDS = ['africa', 'agent', 'air', 'alien', 'alps', 'amazon', 'ambulance', 'amer
          'screen', 'scuba diver', 'seal', 'server', 'shadow', 'shakespeare', 'shark', 'ship', 'shoe', 'shop', 'shot',
          'sink', 'skyscraper', 'slip', 'slug', 'smuggler', 'snow', 'snowman', 'sock', 'soldier', 'soul', 'sound',
          'space', 'spell', 'spider', 'spike', 'spine', 'spot', 'spring', 'spy', 'square', 'stadium', 'staff', 'star',
-         'state', 'stick', 'stock', 'stone', 'straw', 'stream', 'strike', 'string', 'sub', 'suit', 'superhero', 'swing',
+         'state', 'stick', 'stock', 'straw', 'stream', 'strike', 'string', 'sub', 'suit', 'superhero', 'swing',
          'switch', 'table', 'tablet', 'tag', 'tail', 'tap', 'teacher', 'telescope', 'temple', 'theater', 'thief',
          'thumb', 'tick', 'tie', 'time', 'tokyo', 'tooth', 'torch', 'tower', 'track', 'train', 'triangle', 'trip',
          'trunk', 'tube', 'turkey', 'undertaker', 'unicorn', 'vacuum', 'van', 'vet', 'wake', 'wall', 'war', 'washer',
@@ -40,5 +40,7 @@ two_word_mapping = {
     "ice": "ice cream",
     "cream": "ice cream",
     "loch": "loch ness",
-    "ness": "loch ness"
+    "ness": "loch ness",
+    "scuba": "scuba diver",
+    "diver": "scuba diver"
 }

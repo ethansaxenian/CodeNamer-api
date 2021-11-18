@@ -87,10 +87,10 @@ class gameBoard:
         return codenamify_words(game_words)
 
 
-if __name__ == '__main__':
-    # game = gameBoard()
-    # words = game.getGameText(sys.argv[1], False)
-    # print(words, len(words))
-
-    word_list = ["ice", "loch", "ness", "ice", "cream", "new", "york"]
-    print(codenamify_words(word_list))
+# if __name__ == '__main__':
+#     # game = gameBoard()
+#     # words = game.getGameText(sys.argv[1], False)
+#     # print(words, len(words))
+#
+#     word_list = ["loch", "ness", "ice", "cream", "new", "york", "ice", "scuba", "diver"]
+#     print(codenamify_words(word_list))
