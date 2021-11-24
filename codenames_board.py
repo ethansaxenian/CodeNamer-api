@@ -2,40 +2,22 @@ from typing import Optional
 
 from nltk.stem.porter import PorterStemmer
 
-from models.fasttext_missing_words import fasttext_preprocessing_dict
 from models.google_news_missing_words import google_news_preprocessing_dict
 
 
 class CodenamesBoard:
     def __init__(self, red: Optional[list[str]] = None, blue: Optional[list[str]] = None,
-                 tan: Optional[list[str]] = None, black: Optional[str] = None,
-                 model_name: str = "word2vec-google-news-300"):
-        self.red = [self.preprocess_word(word, model_name) for word in red] if red is not None else []
-        self.blue = [self.preprocess_word(word, model_name) for word in blue] if blue is not None else []
-        self.neutral = [self.preprocess_word(word, model_name) for word in tan] if tan is not None else []
-        self.assassin = self.preprocess_word(black, model_name)
+                 tan: Optional[list[str]] = None, black: Optional[str] = None):
+        self.red = [google_news_preprocessing_dict.get(word, word) for word in red] if red is not None else []
+        self.blue = [google_news_preprocessing_dict.get(word, word) for word in blue] if blue is not None else []
+        self.neutral = [google_news_preprocessing_dict.get(word, word) for word in tan] if tan is not None else []
+        self.assassin = google_news_preprocessing_dict.get(black, black)
 
         self.ps = PorterStemmer()
         self.board_stems = set(self.ps.stem(word) for word in self.board())
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
-
-    def preprocess_word(self, word: str, model_name: str) -> str:
-        try:
-
-            if model_name == "word2vec-google-news-300":
-                preprocessing_dict = google_news_preprocessing_dict
-            elif model_name == "fasttext-wiki-news-subwords-300":
-                preprocessing_dict = fasttext_preprocessing_dict
-            else:
-                raise ValueError("Invalid model name")
-
-            # since the model is uncased, use this dict to convert input words to the correct form
-            return preprocessing_dict[word]
-
-        except KeyError:
-            return word
 
     def has_assassin(self) -> bool:
         return self.assassin is not None

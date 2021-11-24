@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from gensim.models import KeyedVectors
 
 from codenames_board import CodenamesBoard
-from models.fasttext_missing_words import fasttext_missing_words
 from models.google_news_missing_words import google_news_missing_words
 
 
@@ -20,20 +19,12 @@ CluesResponse = dict[int, list[Clue]]
 
 
 class NLPModel:
-    def __init__(self, model_name: str = "word2vec-google-news-300", num_valid_clues_per_word_group: int = 10,
+    def __init__(self, num_valid_clues_per_word_group: int = 10,
                  clues_per_size_to_return: int = 5, clue_buffer_size: int = 4096):
-        # possible models are fasttext-wiki-news-subwords-300 and word2vec-google-news-300
-        self.model: KeyedVectors = KeyedVectors.load(f'models/{model_name}')
+        self.model: KeyedVectors = KeyedVectors.load("models/word2vec-google-news-300")
         self.model.sort_by_descending_frequency()
 
-        if model_name == "word2vec-google-news-300":
-            missing_words = google_news_missing_words
-        elif model_name == "fasttext-wiki-news-subwords-300":
-            missing_words = fasttext_missing_words
-        else:
-            raise ValueError("Invalid model name")
-
-        self.model.add_vectors(list(missing_words.keys()), list(missing_words.values()))
+        self.model.add_vectors(list(google_news_missing_words.keys()), list(google_news_missing_words.values()))
 
         # controls how many valid clues the algorithm will generate for each combination
         self.num_valid_clues_per_word_group = num_valid_clues_per_word_group
