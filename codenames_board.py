@@ -45,15 +45,20 @@ class CodenamesBoard:
         return negative_words + self.neutral + ([self.assassin] if self.has_assassin() else [])
 
     def is_valid_clue(self, clue: str) -> bool:
-        if not clue.isalpha():
+        lowercase_clue = clue.lower()
+
+        if not lowercase_clue.isalpha():
             return False
 
         for word in self.board():
-            if word.lower() in clue.lower():
+            if word.lower() in lowercase_clue:
                 return False
-            if clue.lower() in word.lower():
+            if lowercase_clue in word.lower():
                 return False
-            # if self.ps.stem(clue) in self.board_stems:
-            #     return False
+
+        # only compute stems if clue is not obviously invalid
+        for word in self.board():
+            if lowercase_clue[0] == word.lower()[0] and self.ps.stem(lowercase_clue) in self.board_stems:
+                return False
 
         return True
