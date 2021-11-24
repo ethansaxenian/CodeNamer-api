@@ -100,7 +100,6 @@ class gameBoard:
         custom_config = r'--oem 3 --psm 6'
 
         total_boxes = len(line_items_coordinates)
-        print(total_boxes)
         game_words = []
         for sequence_number in range(total_boxes):
             c = line_items_coordinates[sequence_number]
