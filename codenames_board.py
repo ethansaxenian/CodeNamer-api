@@ -1,3 +1,4 @@
+from functools import cache
 from typing import Optional
 
 from nltk.stem.porter import PorterStemmer
@@ -14,7 +15,9 @@ class CodenamesBoard:
         self.assassin = google_news_preprocessing_dict.get(black, black)
 
         self.ps = PorterStemmer()
+        # don't want to compute stems for the board words multiple times
         self.board_stems = set(self.ps.stem(word) for word in self.board())
+        # don't want to compute stems for the same clue multiple times
         self.checked_stems = set()
 
     def __repr__(self):
@@ -45,6 +48,7 @@ class CodenamesBoard:
 
         return negative_words + self.neutral + ([self.assassin] if self.has_assassin() else [])
 
+    @cache
     def is_valid_clue(self, clue: str) -> bool:
         lowercase_clue = clue.lower()
 
