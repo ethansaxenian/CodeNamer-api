@@ -56,9 +56,7 @@ class CodenamesBoard:
             if lowercase_clue in word.lower():
                 return False
 
-        # only compute stems if clue is not obviously invalid
-        for word in self.board():
-            if lowercase_clue[0] == word.lower()[0] and self.ps.stem(lowercase_clue) in self.board_stems:
-                return False
+        if self.ps.stem(lowercase_clue) in self.board_stems:
+            return False
 
         return True
