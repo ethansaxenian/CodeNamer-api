@@ -15,6 +15,7 @@ class CodenamesBoard:
 
         self.ps = PorterStemmer()
         self.board_stems = set(self.ps.stem(word) for word in self.board())
+        self.checked_stems = set()
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
@@ -56,7 +57,9 @@ class CodenamesBoard:
             if lowercase_clue in word.lower():
                 return False
 
-        if self.ps.stem(lowercase_clue) in self.board_stems:
-            return False
+        if lowercase_clue not in self.checked_stems:
+            self.checked_stems.add(lowercase_clue)
+            if self.ps.stem(lowercase_clue) in self.board_stems:
+                return False
 
         return True
