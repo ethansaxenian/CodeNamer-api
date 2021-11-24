@@ -34,6 +34,8 @@ class gameBoard:
         pass
 
     def getGameText(self, imgEncoding, use_b64_encoding=True):
+        pytesseract.pytesseract.tesseract_cmd = "/app/.apt/usr/bin/tesseract"
+
         if use_b64_encoding:
             img = imread(io.BytesIO(base64.b64decode(imgEncoding)))
         else:
