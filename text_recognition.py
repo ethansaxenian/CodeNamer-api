@@ -67,8 +67,8 @@ class gameBoard:
                 xcoords.append(int(x))
                 ycoords.append(int(y))
 
-        yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
-        xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
+        yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5], duplicates='drop')
+        xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5], duplicates='drop')
 
 
         #sort contours
