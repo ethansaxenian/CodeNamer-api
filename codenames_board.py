@@ -53,7 +53,7 @@ class CodenamesBoard:
                 return False
             if clue.lower() in word.lower():
                 return False
-            if self.ps.stem(clue) in self.board_stems:
-                return False
+            # if self.ps.stem(clue) in self.board_stems:
+            #     return False
 
         return True
