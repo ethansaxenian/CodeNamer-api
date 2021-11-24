@@ -1,4 +1,3 @@
-from functools import cache
 from typing import Optional
 
 from nltk.stem.porter import PorterStemmer
@@ -18,7 +17,7 @@ class CodenamesBoard:
         # don't want to compute stems for the board words multiple times
         self.board_stems = set(self.ps.stem(word) for word in self.board())
         # don't want to compute stems for the same clue multiple times
-        self.checked_stems = set()
+        self.saved_stems = {}
 
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
@@ -48,7 +47,6 @@ class CodenamesBoard:
 
         return negative_words + self.neutral + ([self.assassin] if self.has_assassin() else [])
 
-    @cache
     def is_valid_clue(self, clue: str) -> bool:
         lowercase_clue = clue.lower()
 
@@ -61,9 +59,12 @@ class CodenamesBoard:
             if lowercase_clue in word.lower():
                 return False
 
-        if lowercase_clue not in self.checked_stems:
-            self.checked_stems.add(lowercase_clue)
-            if self.ps.stem(lowercase_clue) in self.board_stems:
+        try:
+            if self.saved_stems[lowercase_clue] in self.board_stems:
+                return False
+        except KeyError:
+            self.saved_stems[lowercase_clue] = self.ps.stem(lowercase_clue)
+            if self.saved_stems[lowercase_clue] in self.board_stems:
                 return False
 
         return True
