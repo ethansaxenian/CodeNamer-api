@@ -17,11 +17,13 @@ CORS(app)
 
 
 def parse_query_list(key: str) -> list[str]:
+    """parses a query string and returns a list of values from a given key"""
     result = request.args.get(key)
     return result.split(" ") if result else []
 
 
 def parse_query_param(key: str, default: Optional[Any] = None, return_type: Type = str) -> Any:
+    """parses a query string and returns the value from a given key"""
     return request.args.get(key, default=default, type=return_type)
 
 
@@ -66,7 +68,8 @@ def get_color_code():
     if request.data:
         card = colorCard()
         return jsonify(card.getColorCode(request.data))
-    return jsonify("error")
+
+    abort(400, description="missing image data")
 
 
 @app.route("/gameboard", methods=['POST'])
@@ -74,7 +77,8 @@ def get_game_text():
     if request.data:
         board = gameBoard()
         return jsonify(board.getGameText(request.data))
-    return jsonify("error")
+
+    abort(400, description="missing image data")
 
 
 @app.route("/words")

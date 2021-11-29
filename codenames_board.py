@@ -59,6 +59,7 @@ class CodenamesBoard:
             if lowercase_clue in word.lower():
                 return False
 
+        # use memoization: thanks CS302!
         try:
             if self.saved_stems[lowercase_clue] in self.board_stems:
                 return False

@@ -33,6 +33,7 @@ class NLPModel:
         self.clues_per_size_to_return = clues_per_size_to_return
 
         # controls the number of potential clues to generate initially
+        # 4096 should be more than enough for any request
         self.clue_buffer_size = clue_buffer_size
 
     def smaller_model(self, board: CodenamesBoard, color: str, size: int = 10000) -> KeyedVectors:
@@ -47,6 +48,9 @@ class NLPModel:
         given a Codenames board and a color, returns an dict with the best clues for 2, 3, and 4 words
         """
         assert color in ("red", "blue")
+
+        if not board.positive(color):
+            return {}
 
         # create a much smaller model by only including words that are positively correlated with the good words
         # this will increase efficiency and remove the vast majority of words that don't make sense
