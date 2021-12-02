@@ -74,7 +74,7 @@ class NLPModel:
                 for word, score in potential_clue_buffer:
                     if word.lower() not in invalid_clues and board.is_valid_clue(word):
                         # if there is an assassin, make sure that any clues are at most orthogonal to it
-                        if not board.has_assassin() or smaller_model.similarity(word, board.assassin) <= 0:
+                        if not bool(board.assassin) or smaller_model.n_similarity([word], board.assassin) <= 0:
                             new_clue = Clue(word.lower(), score, [w.lower().replace("_", " ") for w in positive_group])
                             valid_clues.append(new_clue)
                     else:

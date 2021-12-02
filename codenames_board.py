@@ -7,11 +7,11 @@ from models.google_news_missing_words import google_news_preprocessing_dict
 
 class CodenamesBoard:
     def __init__(self, red: Optional[list[str]] = None, blue: Optional[list[str]] = None,
-                 tan: Optional[list[str]] = None, black: Optional[str] = None):
+                 tan: Optional[list[str]] = None, black: Optional[list[str]] = None):
         self.red = [google_news_preprocessing_dict.get(word, word) for word in red] if red is not None else []
         self.blue = [google_news_preprocessing_dict.get(word, word) for word in blue] if blue is not None else []
         self.neutral = [google_news_preprocessing_dict.get(word, word) for word in tan] if tan is not None else []
-        self.assassin = google_news_preprocessing_dict.get(black, black)
+        self.assassin = [google_news_preprocessing_dict.get(word, word) for word in black] if black is not None else []
 
         self.ps = PorterStemmer()
         # don't want to compute stems for the board words multiple times
@@ -22,11 +22,8 @@ class CodenamesBoard:
     def __repr__(self):
         return f"{self.red}\n{self.blue}\n{self.neutral}\n{self.assassin}"
 
-    def has_assassin(self) -> bool:
-        return self.assassin is not None
-
     def board(self) -> list[str]:
-        return self.red + self.blue + self.neutral + ([self.assassin] if self.has_assassin() else [])
+        return self.red + self.blue + self.neutral + self.assassin
 
     def positive(self, color: str) -> list[str]:
         if color == "red":
@@ -45,7 +42,7 @@ class CodenamesBoard:
         else:
             raise ValueError("color must be 'red' or 'blue'")
 
-        return negative_words + self.neutral + ([self.assassin] if self.has_assassin() else [])
+        return negative_words + self.neutral + self.assassin
 
     def is_valid_clue(self, clue: str) -> bool:
         lowercase_clue = clue.lower()

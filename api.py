@@ -52,7 +52,7 @@ def get_clues(color):
     reds = parse_query_list("red")
     blues = parse_query_list("blue")
     tans = parse_query_list("tan")
-    black = parse_query_param("black")
+    black = parse_query_list("black")
 
     board = CodenamesBoard(reds, blues, tans, black)
 
