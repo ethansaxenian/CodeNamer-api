@@ -90,5 +90,4 @@ def get_words():
 def validate_words():
     words = parse_query_list("words")
     model = NLPModel()
-    print(model.get_invalid_words(words))
     return jsonify(model.get_invalid_words(words))
