@@ -84,3 +84,11 @@ def get_game_text():
 @app.route("/words")
 def get_words():
     return jsonify(ALL_WORDS)
+
+
+@app.route("/validate-words")
+def validate_words():
+    words = parse_query_list("words")
+    model = NLPModel()
+    print(model.get_invalid_words(words))
+    return jsonify(model.get_invalid_words(words))
