@@ -46,9 +46,12 @@ def codenamify_words(word_list, contours):
             xcoords.append(x)
             ycoords.append(y)
 
-    yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
-    xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
-
+    try:
+        yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
+        xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
+    except:
+        return []
+    
     #sort contours
     final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
 
@@ -67,55 +70,65 @@ class gameBoard:
             img = cv2.imread(imgEncoding,cv2.IMREAD_COLOR)
 
         img = cv2.cvtColor(img, cv2.IMREAD_ANYCOLOR)
+        
         img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
-
 
         #initialize square/rect structuring kernels 
         rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
-        sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
+        sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (6, 6))
         
-
         #Convert image to grayscale and apply blur
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (3,3), 0)
 
+        #apply blackhat to reveal darker regions against light backgrounds 
         blackhat = cv2.morphologyEx(blur, cv2.MORPH_BLACKHAT, rectKernel)
+        cv2.imwrite('data/morph_result.jpg', blackhat)
 
-        gradX = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
-        gradX = np.absolute(gradX)
-        (minVal, maxVal) = (np.min(gradX), np.max(gradX))
-        gradX = (255 * ((gradX - minVal) / (maxVal - minVal))).astype("uint8")
+        #compute scharr gradient along x-axis to find vertical changes in gradient
+        gradient = cv2.Sobel(blackhat, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=-1)
+        gradient = np.absolute(gradient)
+        (minVal, maxVal) = (np.min(gradient), np.max(gradient))
+        gradient = (255 * ((gradient - minVal) / (maxVal - minVal))).astype("uint8")
 
         #threshold image
 	    
-        gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
+        gradient = cv2.morphologyEx(gradient, cv2.MORPH_CLOSE, rectKernel)
+        cv2.imwrite('data/gradient_result.jpg', gradient)
         
 
-        # threshInv = cv2.adaptiveThreshold(gradX,255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,13, 30)
-        threshInv = cv2.threshold(gradX, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-        #cv2.imwrite('data/thresh_result.jpg', threshInv)
+        threshInv = cv2.threshold(gradient, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+        cv2.imwrite('data/thresh_result.jpg', threshInv)
 
+        #shrink borders
         p = int(img.shape[1] * 0.05)
         threshInv[:, 0:p] = 0
         threshInv[:, img.shape[1] - p:] = 0
 
-        opening = cv2.morphologyEx(threshInv, cv2.MORPH_OPEN, sqKernel)
-        #morph = cv2.morphologyEx(threshInv, cv2.MORPH_CLOSE, sqKernel)
-        #cv2.imwrite('data/morph_result.jpg', threshInv)
-        erode = cv2.erode(opening, None, iterations=3)
-
-        #cv2.imwrite('data/erode_result.jpg', erode)
-
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13,9))
-        dilate = cv2.dilate(erode, kernel, iterations=3)
+  
+        #initial erosion
+        erode = cv2.erode(threshInv, sqKernel, iterations=2) 
+        contours, hierarcy = cv2.findContours(erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = len(contours)
 
-        #cv2.imwrite('data/dilate_result.jpg', dilate)
+        #erode until less than 30 possible text contours remain
+        while(contours > 30):
+            erode = cv2.erode(erode, None, iterations=1) 
+            contours, hierarcy = cv2.findContours(erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            contours = len(contours)
+            cv2.imwrite('data/erode_result.jpg', erode)
+       
+        dilate = cv2.dilate(erode, kernel, iterations=4)
+
+        cv2.imwrite('data/dilate_result.jpg', dilate)
 
         orig_contours, hierarcy = cv2.findContours(dilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         contours_poly = [None]*len(orig_contours)
         boundRect = [None]*len(orig_contours)
 
+        #determine bounding rect coordinates 
         for i, c in enumerate(orig_contours):
             hull = cv2.convexHull(c)
             contours_poly[i] = cv2.approxPolyDP(hull, 4, True)
@@ -130,7 +143,7 @@ class gameBoard:
             cv2.putText(drawing, str(i), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), cv2.FONT_HERSHEY_SIMPLEX, .4, color, 2, cv2.LINE_AA)
             line_items_coordinates.append([(int(boundRect[i][0]),int(boundRect[i][1])), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3]))])
 
-        #cv2.imwrite('data/contour_result.jpg', drawing)
+        cv2.imwrite('data/contour_result.jpg', drawing)
 
         custom_config = r'--oem 3 --psm 6'
 
