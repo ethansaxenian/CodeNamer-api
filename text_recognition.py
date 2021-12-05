@@ -2,7 +2,6 @@ import sys
 
 import cv2
 import pytesseract
-from pytesseract import Output
 import random as rng
 import pandas
 
@@ -11,18 +10,14 @@ import string
 import base64
 import io
 
-import os
-import glob
 import concurrent.futures
-import time
 
-from words import ALL_WORDS, two_word_mapping
+from words import two_word_mapping
 from imageio import imread
 
 
-os.environ['OMP_THREAD_LIMIT'] = '1'
-
 def codenamify_words(word_list, contours):
+    print(word_list)
     mapped_words = []
     final_contours = []
     final_words = []
@@ -38,26 +33,28 @@ def codenamify_words(word_list, contours):
             mapped_words.append(two_word_mapping.get(word, word))
 
     for i in range(len(mapped_words)):
-        if(mapped_words[i] in ALL_WORDS and mapped_words[i] not in final_words):
-            final_contours.append(contours[i])
-            final_words.append(mapped_words[i])
+        final_contours.append(contours[i])
+        final_words.append(mapped_words[i])
 
     xcoords = []
     ycoords = []
 
     #isolate inner grid and rank contour coordinates by quantile
-    for i,c in enumerate(final_contours):
+    for c in final_contours:
         area = cv2.contourArea(c)
         if(area>40):
             (x,y),_ = cv2.minEnclosingCircle(c)
             xcoords.append(x)
             ycoords.append(y)
 
-    yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
-    xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
+    try:
+        yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
+        xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
+    except ValueError:
+        return []
 
     #sort contours
-    final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
+    final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key=lambda b:[b[2], b[1]], reverse=False))
 
     print(list(final_words))
     print(len(final_words))
@@ -169,10 +166,9 @@ class gameBoard:
             text_images.append(c_gray)
 
         with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
-            game_words = executor.map(ocr,text_images)
+            game_words = list(executor.map(ocr,text_images))
 
-        print(list(game_words))
-        return codenamify_words(list(game_words), orig_contours)
+        return codenamify_words(game_words, orig_contours)
 
 
 if __name__ == '__main__':
