@@ -52,7 +52,7 @@ def get_clues(color):
     reds = parse_query_list("red")
     blues = parse_query_list("blue")
     tans = parse_query_list("tan")
-    black = parse_query_param("black")
+    black = parse_query_list("black")
 
     board = CodenamesBoard(reds, blues, tans, black)
 
@@ -84,3 +84,10 @@ def get_game_text():
 @app.route("/words")
 def get_words():
     return jsonify(ALL_WORDS)
+
+
+@app.route("/validate-words")
+def validate_words():
+    words = parse_query_list("words")
+    model = NLPModel()
+    return jsonify(model.get_invalid_words(words))
