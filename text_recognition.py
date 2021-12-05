@@ -5,14 +5,22 @@ import pytesseract
 from pytesseract import Output
 import random as rng
 import pandas
+
 import numpy as np
 import string
 import base64
 import io
-from imageio import imread
+
+import os
+import glob
+import concurrent.futures
+import time
 
 from words import ALL_WORDS, two_word_mapping
+from imageio import imread
 
+
+os.environ['OMP_THREAD_LIMIT'] = '1'
 
 def codenamify_words(word_list, contours):
     mapped_words = []
@@ -58,6 +66,15 @@ def codenamify_words(word_list, contours):
     print(list(final_words))
     print(len(final_words))
     return list(final_words)
+
+
+def ocr(img):
+        custom_config = r'-l eng --oem 1 --psm 6'
+        ret,thresh1 = cv2.threshold(img,120,255,cv2.THRESH_BINARY)
+        text = str(pytesseract.image_to_string(thresh1, config=custom_config, lang='eng'))
+        text = text.replace("\x0c", "")
+        text = text.replace("\n", "")
+        return text
 
 class gameBoard:
     def __init__(self):
@@ -145,22 +162,21 @@ class gameBoard:
 
         cv2.imwrite('data/contour_result.jpg', drawing)
 
-        custom_config = r'--oem 3 --psm 6'
+        
 
         total_boxes = len(line_items_coordinates)
         print(total_boxes)
         game_words = []
+        text_images = []
         for sequence_number in range(total_boxes):
             c = line_items_coordinates[sequence_number]
             cropped = img[c[0][1]:c[1][1], c[0][0]:c[1][0]]  
             c_gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
-
-            ret,thresh1 = cv2.threshold(c_gray,120,255,cv2.THRESH_BINARY)
-            text = str(pytesseract.image_to_string(thresh1, config=custom_config, lang='eng'))
-            text = text.replace("\x0c", "")
-            text = text.replace("\n", "")
+            text_images.append(c_gray)
             
-            game_words.append(text.lower())
+        with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
+            game_words = executor.map(ocr,text_images)
+
         print(game_words)
         return codenamify_words(game_words, orig_contours)
 
