@@ -176,7 +176,7 @@ class gameBoard:
             game_words = executor.map(ocr,text_images)
 
         print(game_words)
-        return codenamify_words(game_words, orig_contours)
+        return codenamify_words(list(game_words), orig_contours)
 
 
 if __name__ == '__main__':
