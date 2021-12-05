@@ -69,7 +69,7 @@ def codenamify_words(word_list, contours):
 
 
 def ocr(img):
-        custom_config = r'-l eng --oem 1 --psm 6'
+        custom_config = r'-l eng --oem 3 --psm 6'
         ret,thresh1 = cv2.threshold(img,120,255,cv2.THRESH_BINARY)
         text = str(pytesseract.image_to_string(thresh1, config=custom_config, lang='eng'))
         text = text.replace("\x0c", "")
@@ -175,7 +175,7 @@ class gameBoard:
         with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
             game_words = executor.map(ocr,text_images)
 
-        print(game_words)
+        print(list(game_words))
         return codenamify_words(list(game_words), orig_contours)
 
 
