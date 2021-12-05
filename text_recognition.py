@@ -53,11 +53,8 @@ def codenamify_words(word_list, contours):
             xcoords.append(x)
             ycoords.append(y)
 
-    try:
-        yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
-        xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
-    except ValueError:
-        return []
+    yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
+    xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
 
     #sort contours
     final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
