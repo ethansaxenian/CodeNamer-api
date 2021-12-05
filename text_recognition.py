@@ -57,9 +57,9 @@ def codenamify_words(word_list, contours):
     try:
         yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
         xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
-    except:
+    except ValueError:
         return []
-    
+
     #sort contours
     final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
 
@@ -87,18 +87,18 @@ class gameBoard:
             img = cv2.imread(imgEncoding,cv2.IMREAD_COLOR)
 
         img = cv2.cvtColor(img, cv2.IMREAD_ANYCOLOR)
-        
+
         img = cv2.resize(img, None, fx=1.5, fy=1.5, interpolation=cv2.INTER_CUBIC)
 
-        #initialize square/rect structuring kernels 
+        #initialize square/rect structuring kernels
         rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13, 5))
         sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (6, 6))
-        
+
         #Convert image to grayscale and apply blur
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (3,3), 0)
 
-        #apply blackhat to reveal darker regions against light backgrounds 
+        #apply blackhat to reveal darker regions against light backgrounds
         blackhat = cv2.morphologyEx(blur, cv2.MORPH_BLACKHAT, rectKernel)
         cv2.imwrite('data/morph_result.jpg', blackhat)
 
@@ -109,10 +109,10 @@ class gameBoard:
         gradient = (255 * ((gradient - minVal) / (maxVal - minVal))).astype("uint8")
 
         #threshold image
-	    
+
         gradient = cv2.morphologyEx(gradient, cv2.MORPH_CLOSE, rectKernel)
         cv2.imwrite('data/gradient_result.jpg', gradient)
-        
+
 
         threshInv = cv2.threshold(gradient, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         cv2.imwrite('data/thresh_result.jpg', threshInv)
@@ -123,19 +123,17 @@ class gameBoard:
         threshInv[:, img.shape[1] - p:] = 0
 
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (13,9))
-  
+
         #initial erosion
-        erode = cv2.erode(threshInv, sqKernel, iterations=2) 
+        erode = cv2.erode(threshInv, sqKernel, iterations=2)
         contours, hierarcy = cv2.findContours(erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        contours = len(contours)
 
         #erode until less than 30 possible text contours remain
-        while(contours > 30):
-            erode = cv2.erode(erode, None, iterations=1) 
+        while(len(contours) > 30):
+            erode = cv2.erode(erode, None, iterations=1)
             contours, hierarcy = cv2.findContours(erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            contours = len(contours)
             cv2.imwrite('data/erode_result.jpg', erode)
-       
+
         dilate = cv2.dilate(erode, kernel, iterations=4)
 
         cv2.imwrite('data/dilate_result.jpg', dilate)
@@ -145,7 +143,7 @@ class gameBoard:
         contours_poly = [None]*len(orig_contours)
         boundRect = [None]*len(orig_contours)
 
-        #determine bounding rect coordinates 
+        #determine bounding rect coordinates
         for i, c in enumerate(orig_contours):
             hull = cv2.convexHull(c)
             contours_poly[i] = cv2.approxPolyDP(hull, 4, True)
@@ -162,7 +160,7 @@ class gameBoard:
 
         cv2.imwrite('data/contour_result.jpg', drawing)
 
-        
+
 
         total_boxes = len(line_items_coordinates)
         print(total_boxes)
@@ -170,10 +168,10 @@ class gameBoard:
         text_images = []
         for sequence_number in range(total_boxes):
             c = line_items_coordinates[sequence_number]
-            cropped = img[c[0][1]:c[1][1], c[0][0]:c[1][0]]  
+            cropped = img[c[0][1]:c[1][1], c[0][0]:c[1][0]]
             c_gray = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
             text_images.append(c_gray)
-            
+
         with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
             game_words = executor.map(ocr,text_images)
 

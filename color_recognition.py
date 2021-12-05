@@ -119,9 +119,9 @@ class colorCard:
         try:
             yranks = pandas.qcut(ycoords,5,labels=[1, 2, 3, 4, 5])
             xranks = pandas.qcut(xcoords,5,labels=[1, 2, 3, 4, 5])
-        except:
+        except ValueError:
             return []
-    
+
 
 
         #sort contours
