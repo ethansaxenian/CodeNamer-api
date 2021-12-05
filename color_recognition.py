@@ -20,7 +20,7 @@ class colorCard:
     def getColorName(self, R,G,B):
         minimum = 10000
         #define colors to match known colorcard pixel values
-        colors = [[210, 37, 51],[217, 200, 155],[8, 83, 182], [0, 4, 21]]
+        colors = [[210, 37, 51],[217, 200, 155],[0, 120, 221], [24, 37, 57]]
         color_names = ["red", "tan", "blue", "black"]
 
         #determine minimum distance and assign corresponding color name
