@@ -157,7 +157,6 @@ class gameBoard:
 
         total_boxes = len(line_items_coordinates)
         print(total_boxes)
-        game_words = []
         text_images = []
         for sequence_number in range(total_boxes):
             c = line_items_coordinates[sequence_number]
