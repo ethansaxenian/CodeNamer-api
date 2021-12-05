@@ -29,7 +29,6 @@ def codenamify_words(word_list, contours):
 
     for i in range(len(word_list)):
         word = word_list[i]
-        word = word.translate(str.maketrans('', '', string.punctuation))
 
         # both 'ice' and 'ice cream' are codenames words, so don't convert 'ice' to 'ice cream'
         # unless 'cream' directly follows it
@@ -69,12 +68,12 @@ def codenamify_words(word_list, contours):
 
 
 def ocr(img):
-        custom_config = r'-l eng --oem 3 --psm 6'
-        ret,thresh1 = cv2.threshold(img,120,255,cv2.THRESH_BINARY)
-        text = str(pytesseract.image_to_string(thresh1, config=custom_config, lang='eng'))
-        text = text.replace("\x0c", "")
-        text = text.replace("\n", "")
-        return text
+    custom_config = r'-l eng --oem 3 --psm 6'
+    ret,thresh1 = cv2.threshold(img,120,255,cv2.THRESH_BINARY)
+    text = str(pytesseract.image_to_string(thresh1, config=custom_config, lang='eng'))
+    text = text.replace("\x0c", "")
+    text = text.replace("\n", "")
+    return text.lower().translate(str.maketrans('', '', string.punctuation))
 
 class gameBoard:
     def __init__(self):
