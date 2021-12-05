@@ -12,7 +12,7 @@ import io
 
 import concurrent.futures
 
-from words import two_word_mapping
+from words import two_word_mapping, ALL_WORDS
 from imageio import imread
 
 
@@ -33,8 +33,9 @@ def codenamify_words(word_list, contours):
             mapped_words.append(two_word_mapping.get(word, word))
 
     for i in range(len(mapped_words)):
-        final_contours.append(contours[i])
-        final_words.append(mapped_words[i])
+        if mapped_words[i] in ALL_WORDS and mapped_words[i] not in final_words:
+            final_contours.append(contours[i])
+            final_words.append(mapped_words[i])
 
     xcoords = []
     ycoords = []
@@ -173,4 +174,3 @@ class gameBoard:
 if __name__ == '__main__':
     game = gameBoard()
     words = game.getGameText(sys.argv[1], False)
-    print(words, len(words))
