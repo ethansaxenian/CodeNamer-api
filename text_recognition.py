@@ -54,9 +54,9 @@ def codenamify_words(word_list, contours):
     except ValueError:
         return []
 
-    #sort contours
-    final_words, xcoords, ycoords = zip(*sorted(zip(final_words, xranks, yranks), key=lambda b:[b[2], b[1]], reverse=False))
-
+    #sort words
+    final_words, _, _ = zip(*sorted(zip(final_words, xranks, yranks), key=lambda b:[b[2], b[1]], reverse=False))
+    
     print(list(final_words))
     print(len(final_words))
     return list(final_words)
