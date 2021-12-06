@@ -11,6 +11,8 @@ import base64
 import io
 
 import concurrent.futures
+import os
+os.environ['OMP_THREAD_LIMIT'] = '1'
 
 from words import two_word_mapping, ALL_WORDS
 from imageio import imread
