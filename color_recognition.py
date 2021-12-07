@@ -20,7 +20,7 @@ class colorCard:
     def getColorName(self, R,G,B):
         minimum = 10000
         #define colors to match known colorcard pixel values
-        colors = [[244, 58, 42],[240, 216, 140],[104, 143, 169], [58, 42, 27]]
+        colors = [[118, 9, 36],[172, 164, 116],[6, 87, 127], [41, 57, 82]]
         color_names = ["red", "tan", "blue", "black"]
 
         #determine minimum distance and assign corresponding color name
@@ -151,7 +151,7 @@ class colorCard:
 
             cv2.putText(drawing, str(i), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), cv2.FONT_HERSHEY_SIMPLEX, .4, color, 2, cv2.LINE_AA)
 
-
+        print(color_pattern)
         return(color_pattern)
 
 if __name__ == '__main__':
