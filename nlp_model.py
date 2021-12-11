@@ -65,11 +65,22 @@ class NLPModel:
         # keep track of all invalid clues so we aren't computing stems more than necessary (increases efficiency)
         invalid_clues = set()
 
+        # weight assassin more strongly that other negative words
+        weighted_negative_words = []
+        for item in board.negative(color):
+            if item == board.assassin:
+                weight = -10.0
+            elif item in board.opposite(color):
+                weight = -3.0
+            else:
+                weight = -1.0
+            weighted_negative_words.append((item, weight))
+
         for i in [2, 3, 4]:
             for positive_group in itertools.combinations(board.positive(color), i):
 
                 potential_clue_buffer = smaller_model.most_similar(positive=positive_group,
-                                                                   negative=board.negative(color),
+                                                                   negative=weighted_negative_words,
                                                                    topn=self.clue_buffer_size)
 
                 valid_clues = []

@@ -33,6 +33,14 @@ class CodenamesBoard:
         else:
             raise ValueError("color must be 'red' or 'blue'")
 
+    def opposite(self, color: str) -> list[str]:
+        if color == "red":
+            return self.blue
+        elif color == "blue":
+            return self.red
+        else:
+            raise ValueError("color must be 'red' or 'blue'")
+
     def negative(self, color: str) -> list[str]:
         negative_words = []
         if color == "red":
