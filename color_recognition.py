@@ -42,7 +42,7 @@ class colorCard:
         for i in range(k):
             innerGrid.put((-abs(contourRatios[i]-medianRatio),i))
 
-        # Now process remaining elements
+        #  process remaining elements
         for i in range(k,length):
             diff = abs(contourRatios[i]-medianRatio)
             ratio,rank = innerGrid.get()
@@ -73,8 +73,6 @@ class colorCard:
         img = cv2.cvtColor(img, cv2.IMREAD_ANYCOLOR)
 
         color_pattern = []
-        output = ""
-
 
         #convert image to RGB pixel values for color identification
         cimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -90,8 +88,10 @@ class colorCard:
         #find contours
         orig_contours, hierarchy = cv2.findContours(threshInv, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+        #area of largest contour, the card border
         maxArea = max([cv2.contourArea(x) for x in orig_contours])
 
+        #determine grid ratio for each contour
         grid_ratios = []
         for c in orig_contours:
             area = cv2.contourArea(c)
@@ -100,6 +100,7 @@ class colorCard:
                 grid_ratios.append(grid_ratio)
 
 
+        #identify 25 contours with grid ration closest to known pixel-image ratio
         inner_grid = self.matchInnerRatios(grid_ratios, 25)
 
         contours = []
@@ -127,29 +128,17 @@ class colorCard:
         #sort contours
         contours, xcoords, ycoords = zip(*sorted(zip(contours, xranks, yranks), key = lambda b:[b[2], b[1]], reverse=False))
 
-        contours_poly = [None]*len(contours)
-        boundRect = [None]*len(contours)
-
-        #correct and approximate contour shape, determine bounding rect coordinates
+        #determine bounding rect coordinates and find average pixel value
         for i, c in enumerate(contours):
             hull = cv2.convexHull(c)
-            contours_poly[i] = cv2.approxPolyDP(hull, 4, True)
-            boundRect[i] = cv2.boundingRect(contours_poly[i])
+            contours_poly = cv2.approxPolyDP(hull, 4, True)
+            boundRect = cv2.boundingRect(contours_poly)
 
-        drawing = np.zeros((threshInv.shape[0], threshInv.shape[1], 3), dtype=np.uint8)
-
-
-        #Draw bonding rects
-        for i,c in enumerate(contours):
-            color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
-            cv2.rectangle(drawing, (int(boundRect[i][0]), int(boundRect[i][1])), \
-                (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), color, 2)
-
-            avg_color = cv2.mean(cimg[int(boundRect[i][1]): int(boundRect[i][1]+boundRect[i][3]), int(boundRect[i][0]): int(boundRect[i][0]+boundRect[i][2])])
+            #calculate average pixel value and assign color label
+            avg_color = cv2.mean(cimg[int(boundRect[1]): int(boundRect[1]+boundRect[3]), int(boundRect[0]): int(boundRect[0]+boundRect[2])])
             label = self.getColorName(avg_color[0], avg_color[1], avg_color[2])
             color_pattern.append(label)
 
-            cv2.putText(drawing, str(i), (int(boundRect[i][0]+boundRect[i][2]), int(boundRect[i][1]+boundRect[i][3])), cv2.FONT_HERSHEY_SIMPLEX, .4, color, 2, cv2.LINE_AA)
 
         print(color_pattern)
         return(color_pattern)
