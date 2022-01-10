@@ -12,3 +12,6 @@ updates:
     commit-message:
       prefix: "pip"
       include: "scope"
+      
+    # disable dependabot
+    open-pull-requests-limit: 0
