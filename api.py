@@ -43,6 +43,25 @@ def readme():
     markdown_str = markdown.markdown(readme_file.read(), extensions=["fenced_code"])
     return markdown_str
 
+@app.route("/match/<word>")
+def get_match(word):
+
+    reds = parse_query_list("red")
+    blues = parse_query_list("blue")
+    tans = parse_query_list("tan")
+    black = parse_query_list("black")
+    num = int(parse_query_list("num")[0])
+
+    board = CodenamesBoard(reds, blues, tans, black)
+
+    if not board.board():
+        abort(400, description="Missing required query parameter. "
+                               "At least one of 'positive', 'negative', 'neutral', 'assassin' required.")
+    model = NLPModel()
+    print(word.lower())
+    print(num)
+    return jsonify(model.find_best_match(board, word.lower(), num))
+
 
 @app.route("/clues/<color>")
 def get_clues(color):

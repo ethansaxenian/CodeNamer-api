@@ -16,6 +16,7 @@ class Clue:
 
 
 CluesResponse = dict[int, list[Clue]]
+MatchResponse = dict[int, list[Clue]]
 
 
 class NLPModel:
@@ -38,6 +39,22 @@ class NLPModel:
 
     def get_invalid_words(self, words: list[str]) -> list[str]:
         return [word for word in words if not self.model.has_index_for(word)]
+    
+    def find_best_match(self, board: CodenamesBoard, hint: str, num: int) -> MatchResponse:
+        """
+        Ranks board words by cosine similarity to hint. 
+        """
+        rankings = []
+        origWords = board.board()
+
+        for word in origWords:
+            rankings.append(self.model.rank(hint, word))
+
+        origWords, rankings = zip(*sorted(zip(origWords, rankings), key = lambda b:b[1], reverse=False))
+        print(origWords[0:num])
+        return(origWords[0:num])
+        
+
 
     def smaller_model(self, board: CodenamesBoard, color: str, size: int = 10000) -> KeyedVectors:
         """
